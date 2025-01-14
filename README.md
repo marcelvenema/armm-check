@@ -1,2 +1,10 @@
 # armm-check
-Powershell script to check ARMM document changes in CBG website
+Powershell scripts voor controle of ARMM documenten zijn gewijzigd op CBG website.
+
+
+1. Download Powershell scripts van deze website.
+2.
+3.
+4.
+5. 
+
