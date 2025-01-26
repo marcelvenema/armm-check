@@ -19,7 +19,7 @@ $date = Get-Date -Format "yyyyMMdd" # US date format, used in file names
 If ($download) { $download_folder = $date; If (-Not (Test-Path $download_folder)) { New-Item -ItemType Directory -Path $download_folder | Out-Null }}
 
 # Download the HTML content
-$htmlContent = curl --silent $url
+$htmlContent = (Invoke-WebRequest -Uri $url).Content
 # Extract the table content using regex
 $regex = '<table summary="Search Results">(.*?)</table>'
 $tableContent = [regex]::Match($htmlContent, $regex, [System.Text.RegularExpressions.RegexOptions]::Singleline)
@@ -63,7 +63,7 @@ for ($i=1; $i -lt $rows.Count; $i++) {
     $registratie_url_mh = $registratie["REG_URL_HANDELSVERGUNNINGHOUDER"] -replace $reg_nummer_MH, $registratie["REG_NUMMER_MAH"]
     $registratie["REG_URL_MAH"] = $registratie_url_mh
     # get content from merkhouder url
-    $product_content_mh = curl --silent $registratie["REG_URL_MAH"]
+    $product_content_mh = (Invoke-WebRequest -Uri $registratie["REG_URL_MAH"]).Content
     # Save content to a file for debug purposes
     # $product_content_mh | Out-File -FilePath "$($reg_id)_mh_content.txt"
     # Get <!-- downloads --> content
@@ -113,7 +113,7 @@ for ($i=1; $i -lt $rows.Count; $i++) {
        # extract file name from url
        $armm_file = "ARMM_MAH_" + "$($date)_" + [System.IO.Path]::GetFileName($armm_url)         
        $registratie["ARMM_FILE_MAH"] = $armm_file
-       curl --silent $armm_url -o $armm_file 
+       Invoke-WebRequest -Uri $armm_url -OutFile $armm_file
        # Get checksum of the file
        $checksum = Get-FileHash -Path $armm_file -Algorithm MD5
        $registratie["ARMM_CHECKSUM_MAH"] = $checksum.Hash
@@ -144,7 +144,7 @@ for ($i=1; $i -lt $rows.Count; $i++) {
             Write-Output "Download bijsluiter merkhouder document voor registratie $($registratie["PRODUCTNAAM"])..."
             $bijsluiter_file = "BIJSLUITER_MAH_" + "$($date)_" + [System.IO.Path]::GetFileName($bijsluiter_url) 
             $registratie["BIJSLUITER_FILE_MAH"] = $bijsluiter_file
-            curl --silent $bijsluiter_url -o $bijsluiter_file 
+            Invoke-WebRequest -Uri $bijsluiter_url -OutFile $bijsluiter_file
             # Get checksum of the file
             $checksum = Get-FileHash -Path $bijsluiter_file -Algorithm MD5
             $registratie["BIJSLUITER_CHECKSUM_MAH"] = $checksum.Hash
@@ -175,7 +175,7 @@ for ($i=1; $i -lt $rows.Count; $i++) {
         Write-Output "Download SMPC merkhouder document voor registratie $($registratie["PRODUCTNAAM"])..."
         $smpc_file = "SMPC_MAH_" + "$($date)_" + [System.IO.Path]::GetFileName($smpc_url)
         $registratie["SMPC_FILE_MAH"] = $smpc_file
-        curl --silent $smpc_url -o $smpc_file
+        Invoke-WebRequest -Uri $smpc_url -OutFile $smpc_file
         # Get checksum of the file
         $checksum = Get-FileHash -Path $smpc_file -Algorithm MD5
         $registratie["SMPC_CHECKSUM_MAH"] = $checksum.Hash
